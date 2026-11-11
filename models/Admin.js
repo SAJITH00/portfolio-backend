@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -30,10 +31,8 @@ const adminSchema = new mongoose.Schema(
   }
 );
 
-// Method to verify candidate password
 adminSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.passwordHash);
 };
 
 module.exports = mongoose.model('Admin', adminSchema);
-
