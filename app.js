@@ -104,12 +104,20 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 
 /* ── 6. File Uploads (served from MongoDB) ── */
-app.get('/uploads/:filename', serveUpload);
+
 const uploadsPath = path.join(__dirname, 'public', 'uploads');
-app.use('/uploads', (_req, res, next) => {
+
+// Allow portfolio images to load from GitHub Pages
+app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
-}, express.static(uploadsPath));
+});
+
+// Serve uploaded images from MongoDB
+app.get('/uploads/:filename', serveUpload);
+
+// Serve static uploads if available
+app.use('/uploads', express.static(uploadsPath));
 
 /* ── 7. Admin Dashboard Static Files ── */
 // On Vercel these are also served via rewrites → serverless function,
