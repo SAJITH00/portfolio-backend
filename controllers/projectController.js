@@ -30,6 +30,13 @@ const createProject = async (req, res, next) => {
       order,
     } = req.body;
 
+    if (typeof description === 'string' && description.length > 200) {
+      return res.status(400).json({
+        success: false,
+        message: 'Project description must be 200 characters or fewer.',
+      });
+    }
+
     const techArray = Array.isArray(technologies)
       ? technologies
       : (technologies || '').split(',').map((t) => t.trim()).filter(Boolean);
@@ -61,6 +68,13 @@ const createProject = async (req, res, next) => {
 const updateProject = async (req, res, next) => {
   try {
     const updateData = { ...req.body };
+
+    if (typeof updateData.description === 'string' && updateData.description.length > 200) {
+      return res.status(400).json({
+        success: false,
+        message: 'Project description must be 200 characters or fewer.',
+      });
+    }
 
     if (Object.prototype.hasOwnProperty.call(updateData, 'imageUrl')) {
       updateData.imageUrl = normalizeMediaUrl(updateData.imageUrl);

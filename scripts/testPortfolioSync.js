@@ -51,10 +51,19 @@ async function run() {
   app.put('/api/admin/projects/:id', projectController.updateProject);
   app.get('/api/portfolio', getEntirePortfolio);
 
+  const allowedDescription = 'a'.repeat(200);
   const created = await request(app)
     .post('/api/admin/projects')
-    .send({ title: 'Dashboard project', description: 'Created in admin', order: '2' });
+    .send({ title: 'Dashboard project', description: allowedDescription, order: '2' });
   assert.equal(created.status, 201);
+  assert.equal(created.body.data.description.length, 200);
+
+  const tooLongDescription = 'a'.repeat(201);
+  const rejectedCreate = await request(app)
+    .post('/api/admin/projects')
+    .send({ title: 'Too long project', description: tooLongDescription });
+  assert.equal(rejectedCreate.status, 400);
+  assert.equal(projects.records.length, 2);
 
   let publicPortfolio = await request(app).get('/api/portfolio');
   assert.equal(publicPortfolio.status, 200);
@@ -72,6 +81,11 @@ async function run() {
     .put(`/api/admin/projects/${projectId}`)
     .send({ description: 'Updated in admin' });
   assert.equal(updated.status, 200);
+
+  const rejectedUpdate = await request(app)
+    .put(`/api/admin/projects/${projectId}`)
+    .send({ description: tooLongDescription });
+  assert.equal(rejectedUpdate.status, 400);
 
   publicPortfolio = await request(app).get('/api/portfolio');
   const updatedProject = publicPortfolio.body.data.projects.find((project) => project._id === projectId);
