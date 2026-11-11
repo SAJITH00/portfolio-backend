@@ -30,20 +30,36 @@ const saveUpload = async (req, res, next) => {
 const serveUpload = async (req, res, next) => {
   try {
     const { filename } = req.params;
-    if (!/^file-\d+-\d+\.(jpe?g|png|webp|gif)$/.test(filename)) {
-      return next();
+
+    if (!/^file-\d+-\d+\.(jpe?g|png|webp|gif)$/i.test(filename)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid image filename'
+      });
     }
 
-    const file = await StoredUpload.findOne({ filename }).select('mimetype data size');
-    if (!file) return next();
+    const file = await StoredUpload.findOne({ filename })
+      .select('mimetype data size');
+
+    if (!file || !file.data) {
+      console.log('Image not found in MongoDB:', filename);
+
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found in MongoDB',
+        filename
+      });
+    }
 
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.setHeader('Content-Type', file.mimetype || 'application/octet-stream');
+    res.setHeader('Content-Type', file.mimetype);
     res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.setHeader('Content-Length', file.size || file.data.length);
-    return res.send(Buffer.from(file.data));
+
+    return res.send(file.data);
+
   } catch (err) {
-    return next(err);
+    console.error('Image retrieval error:', err);
+    next(err);
   }
 };
 
