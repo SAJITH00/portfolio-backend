@@ -120,17 +120,17 @@ app.get('/admin/*', (_req, res) => {
   res.sendFile(path.join(adminStaticPath, 'index.html'));
 });
 
-/* ── 8. Portfolio Frontend (served from project root — local dev only) ── */
-// On Vercel, static files (index.html, assets/, portfolio-cms.js) are served
-// directly by the CDN edge network. This block only runs locally.
-const isVercel = process.env.VERCEL === '1';
-if (!isVercel) {
-  const portfolioRootPath = path.join(__dirname, '..');
-  app.use(express.static(portfolioRootPath, { index: false }));
-  app.get('/', (_req, res) => {
-    res.sendFile(path.join(portfolioRootPath, 'index.html'));
+/* ── 8. Portfolio Frontend ── */
+// Frontend is hosted separately on Vercel.
+// Render backend serves API endpoints only.
+
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Sajith Portfolio Backend API is running!',
+    environment: process.env.NODE_ENV || 'development'
   });
-}
+});
 
 /* ── 9. 404 for undefined API routes ── */
 app.use('/api/*', (_req, res) => {
