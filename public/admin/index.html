@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Telemetry &amp; CMS // SAJITH DEV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body" data-theme="dark">
+
+  <!-- 1. LOGIN SCREEN -->
+  <div id="loginView" class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-tag"><span class="ping-dot"></span>SYS // ADMIN</div>
+        <h2>Portfolio Control Center</h2>
+        <p>Authenticate with administrative credentials</p>
+      </div>
+
+      <div id="loginError" class="alert-box error" style="display: none;"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">USERNAME OR EMAIL</label>
+          <input type="text" id="username" placeholder="admin@sajith.dev" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">SECURITY KEY (PASSWORD)</label>
+          <input type="password" id="password" placeholder="••••••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="loginBtn" class="btn-primary">
+          <span id="loginBtnText">Unlock System</span>
+        </button>
+      </form>
+      <div class="auth-footer">
+        SAJITH // DEV TELEMETRY &copy; 2025
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DASHBOARD SCREEN -->
+  <div id="dashboardView" class="dashboard-wrap" style="display: none;">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="ping-dot"></span>
+        <span class="brand-name">SAJITH // ADMIN</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="overview">
+          <span class="icon">📊</span>
+          <span>Analytics</span>
+        </button>
+        <button class="nav-item" data-tab="messages">
+          <span class="icon">✉️</span>
+          <span>Messages</span>
+          <span class="badge" id="sidebarUnreadBadge" style="display: none;">0</span>
+        </button>
+        <button class="nav-item" data-tab="projects">
+          <span class="icon">💻</span>
+          <span>Projects</span>
+        </button>
+        <button class="nav-item" data-tab="skills">
+          <span class="icon">⚡</span>
+          <span>Skills</span>
+        </button>
+        <button class="nav-item" data-tab="timeline">
+          <span class="icon">⏳</span>
+          <span>Timeline</span>
+        </button>
+        <button class="nav-item" data-tab="profile">
+          <span class="icon">👤</span>
+          <span>Profile / About</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-meta">
+          <span class="user-role">Administrator</span>
+          <strong id="adminUsernameDisplay">Administrator</strong>
+        </div>
+        <button id="logoutBtn" class="btn-logout" title="Logout">
+          <span>Logout</span> ↗
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="pageTitle">Telemetry &amp; Visitor Analytics</h1>
+          <p id="pageSub">Real-time visitor telemetry, page views, and transmission feeds</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeToggleBtn" class="btn-icon" title="Toggle Theme">🌓</button>
+          <button id="refreshBtn" class="btn-secondary">↻ Refresh Data</button>
+          <a href="/" target="_blank" class="btn-view-site">View Live Portfolio ↗</a>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW & ANALYTICS -->
+      <section id="tab-overview" class="tab-pane active">
+        <!-- DATE RANGE TOOLBAR -->
+        <div class="date-filter-bar">
+          <span class="filter-label">Analytics Window:</span>
+          <div class="filter-pills" id="rangePills">
+            <button class="range-pill" data-range="today">Today</button>
+            <button class="range-pill" data-range="7d">Last 7 Days</button>
+            <button class="range-pill active" data-range="30d">Last 30 Days</button>
+            <button class="range-pill" data-range="90d">Last 90 Days</button>
+          </div>
+          <div class="custom-date-wrap">
+            <input type="date" id="customStartDate" aria-label="Start Date">
+            <span>to</span>
+            <input type="date" id="customEndDate" aria-label="End Date">
+            <button id="applyCustomDateBtn" class="btn-small">Apply</button>
+          </div>
+        </div>
+
+        <!-- 7 SUMMARY CARDS -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">TOTAL PAGE VIEWS</span><span class="metric-ico">👁️</span></div>
+            <div class="metric-val" id="metricTotalViews">0</div>
+            <div class="metric-sub">Cumulative page view events</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">UNIQUE VISITORS</span><span class="metric-ico">🌐</span></div>
+            <div class="metric-val" id="metricUniqueVisitors">0</div>
+            <div class="metric-sub">Distinct anonymous visitors</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">TODAY'S VISITORS</span><span class="metric-ico">⚡</span></div>
+            <div class="metric-val" id="metricTodayVisitors">0</div>
+            <div class="metric-sub">Active visits past 24 hours</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">THIS MONTH'S VISITORS</span><span class="metric-ico">📅</span></div>
+            <div class="metric-val" id="metricMonthVisitors">0</div>
+            <div class="metric-sub">Visits in current calendar month</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">TOTAL PROJECTS</span><span class="metric-ico">📁</span></div>
+            <div class="metric-val" id="metricTotalProjects">0</div>
+            <div class="metric-sub">Published portfolio works</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">TOTAL MESSAGES</span><span class="metric-ico">📥</span></div>
+            <div class="metric-val" id="metricTotalMessages">0</div>
+            <div class="metric-sub">All contact inquiries</div>
+          </div>
+          <div class="metric-card highlight">
+            <div class="metric-top"><span class="metric-label">UNREAD MESSAGES</span><span class="metric-ico">🔔</span></div>
+            <div class="metric-val text-warning" id="metricUnreadMessages">0</div>
+            <div class="metric-sub">Awaiting your response</div>
+          </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="charts-grid">
+          <!-- MAIN TIMELINE CHART -->
+          <div class="panel chart-card full-width">
+            <div class="panel-header">
+              <div>
+                <h3>Traffic Trends: Visitors &amp; Page Views Over Time</h3>
+                <p class="chart-subtitle">Daily, weekly, and monthly activity distribution</p>
+              </div>
+              <div class="chart-switchers">
+                <button class="chart-tab active" data-chart="daily">Daily</button>
+                <button class="chart-tab" data-chart="weekly">Weekly</button>
+                <button class="chart-tab" data-chart="monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="trafficChart"></canvas>
+            </div>
+          </div>
+
+          <!-- DEVICE BREAKDOWN -->
+          <div class="panel chart-card">
+            <div class="panel-header">
+              <h3>Device Categories</h3>
+            </div>
+            <div class="chart-container-donut">
+              <canvas id="deviceChart"></canvas>
+            </div>
+          </div>
+
+          <!-- REFERRER / SOURCE BREAKDOWN -->
+          <div class="panel chart-card">
+            <div class="panel-header">
+              <h3>Traffic Sources / Referrers</h3>
+            </div>
+            <div class="chart-container-donut">
+              <canvas id="referrerChart"></canvas>
+            </div>
+          </div>
+
+          <!-- TOP BROWSERS -->
+          <div class="panel chart-card">
+            <div class="panel-header">
+              <h3>Browsers</h3>
+            </div>
+            <div class="chart-container-donut">
+              <canvas id="browserChart"></canvas>
+            </div>
+          </div>
+
+          <!-- MOST VISITED SECTIONS -->
+          <div class="panel chart-card">
+            <div class="panel-header">
+              <h3>Most Visited Sections</h3>
+            </div>
+            <div class="chart-container-donut">
+              <canvas id="sectionChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MESSAGES -->
+      <section id="tab-messages" class="tab-pane" style="display: none;">
+        <div class="panel">
+          <div class="panel-toolbar">
+            <div class="filters-group">
+              <button class="filter-btn active" data-filter="all">All (<span id="countFilterAll">0</span>)</button>
+              <button class="filter-btn" data-filter="unread">Unread (<span id="countFilterUnread">0</span>)</button>
+              <button class="filter-btn" data-filter="read">Read (<span id="countFilterRead">0</span>)</button>
+            </div>
+            <div class="search-wrap">
+              <input type="text" id="searchInput" placeholder="Search inquiries...">
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" id="messagesTable">
+              <thead>
+                <tr>
+                  <th>STATUS</th>
+                  <th>NAME</th>
+                  <th>EMAIL</th>
+                  <th>SUBJECT</th>
+                  <th>RECEIVED</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="messagesTableBody">
+                <tr><td colspan="6" class="empty-cell">Loading transmissions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar" id="paginationBar">
+            <span id="paginationInfo">Showing records</span>
+            <div class="pagination-buttons">
+              <button id="prevPageBtn" disabled>&larr; Previous</button>
+              <button id="nextPageBtn" disabled>Next &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: PROJECTS (CRUD) -->
+      <section id="tab-projects" class="tab-pane" style="display: none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Portfolio Projects Manager</h3>
+              <p class="chart-subtitle">Add, edit, reorder and showcase your software engineering projects</p>
+            </div>
+            <button id="addNewProjectBtn" class="btn-primary btn-inline" type="button">+ Add New Project</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="projectsTable">
+              <thead>
+                <tr>
+                  <th>ORDER</th>
+                  <th>IMAGE</th>
+                  <th>TITLE</th>
+                  <th>CATEGORY</th>
+                  <th>BADGE</th>
+                  <th>FEATURED</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTableBody">
+                <tr><td colspan="7" class="empty-cell">Loading projects...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: SKILLS (CRUD) -->
+      <section id="tab-skills" class="tab-pane" style="display: none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Technical Arsenal &amp; AI Tools</h3>
+              <p class="chart-subtitle">Manage technologies displayed in the Arsenal bento grid</p>
+            </div>
+            <button id="addNewSkillBtn" class="btn-primary btn-inline" type="button">+ Add Skill</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="skillsTable">
+              <thead>
+                <tr>
+                  <th>NAME</th>
+                  <th>CATEGORY</th>
+                  <th>HIGHLIGHT</th>
+                  <th>STYLE CLASS</th>
+                  <th>ORDER</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="skillsTableBody">
+                <tr><td colspan="6" class="empty-cell">Loading skills...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: TIMELINE (CRUD) -->
+      <section id="tab-timeline" class="tab-pane" style="display: none;">
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div>
+              <h3>Work Experience</h3>
+              <p class="chart-subtitle">Professional experience and engineering journey milestones</p>
+            </div>
+            <button id="addNewExpBtn" class="btn-primary btn-inline" type="button">+ Add Experience</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="experienceTable">
+              <thead>
+                <tr>
+                  <th>COMPANY</th>
+                  <th>ROLE</th>
+                  <th>PERIOD</th>
+                  <th>TAG</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="experienceTableBody">
+                <tr><td colspan="5" class="empty-cell">Loading experience...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Education &amp; Qualifications</h3>
+              <p class="chart-subtitle">Degrees, diplomas, certifications, and academies</p>
+            </div>
+            <button id="addNewEduBtn" class="btn-primary btn-inline" type="button">+ Add Education</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="educationTable">
+              <thead>
+                <tr>
+                  <th>INSTITUTION</th>
+                  <th>DEGREE / CERTIFICATION</th>
+                  <th>PERIOD</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="educationTableBody">
+                <tr><td colspan="4" class="empty-cell">Loading education...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: PROFILE / ABOUT -->
+      <section id="tab-profile" class="tab-pane" style="display: none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Profile &amp; About Section Configuration</h3>
+              <p class="chart-subtitle">Update your personal bio, headline, contact coordinates, and social handles</p>
+            </div>
+          </div>
+          <form id="profileForm" class="profile-editor-form">
+            <p id="profileFormStatus" class="form-status is-empty" role="status"></p>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="profName">FULL NAME</label>
+                <input type="text" id="profName" required>
+              </div>
+              <div class="form-group">
+                <label for="profTitle">PROFESSIONAL TITLE / ROLES</label>
+                <input type="text" id="profTitle" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="profTagline">PORTFOLIO TAGLINE</label>
+              <input type="text" id="profTagline">
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="profLocation">LOCATION</label>
+                <input type="text" id="profLocation">
+              </div>
+              <div class="form-group">
+                <label for="profStatus">AVAILABILITY STATUS</label>
+                <input type="text" id="profStatus" placeholder="Open to Roles">
+              </div>
+              <div class="form-group">
+                <label for="profEmail">DIRECT CONTACT EMAIL</label>
+                <input type="email" id="profEmail" required>
+              </div>
+              <div class="form-group">
+                <label for="profPhone">PHONE</label>
+                <input type="tel" id="profPhone">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profHeadline">ABOUT HEADLINE</label>
+              <input type="text" id="profHeadline" placeholder="Curious Mind. Creative Builder. Continuous Learner.">
+            </div>
+
+            <div class="form-group">
+              <label for="profBio">ABOUT BIO / NARRATIVE</label>
+              <textarea id="profBio" rows="4"></textarea>
+            </div>
+
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label for="profProjectsCount">METRIC 1: PROJECTS BUILT</label>
+                <input type="text" id="profProjectsCount" placeholder="15+">
+              </div>
+              <div class="form-group">
+                <label for="profTechMastered">METRIC 2: TECH MASTERED</label>
+                <input type="text" id="profTechMastered" placeholder="12+">
+              </div>
+              <div class="form-group">
+                <label for="profPassionRate">METRIC 3: PASSION DRIVEN</label>
+                <input type="text" id="profPassionRate" placeholder="100%">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="profGithub">GITHUB URL</label>
+                <input type="text" id="profGithub">
+              </div>
+              <div class="form-group">
+                <label for="profLinkedin">LINKEDIN URL</label>
+                <input type="text" id="profLinkedin">
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label for="profWhatsapp">WHATSAPP URL</label>
+                <input type="text" id="profWhatsapp">
+              </div>
+              <div class="form-group">
+                <label for="profResume">RESUME / CV URL</label>
+                <input type="text" id="profResume" placeholder="https://... or /uploads/resume.pdf">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profAvatar">PROFILE / AVATAR IMAGE URL</label>
+              <div class="input-with-upload">
+                <input type="text" id="profAvatar" placeholder="https://... or upload below">
+                <input type="file" id="avatarFileInput" accept="image/*" hidden>
+                <button type="button" id="uploadAvatarBtn" class="btn-secondary">Upload image</button>
+              </div>
+              <div class="upload-preview" id="avatarPreview" hidden>
+                <img id="avatarPreviewImg" alt="Avatar preview">
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="saveProfileBtn" class="btn-primary btn-inline">Save Profile Changes</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: CONTACT MESSAGE DETAIL -->
+  <div id="messageModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="status-pill" id="modalStatusPill">Unread</span>
+          <h2 id="modalSubject">Transmission Subject</h2>
+        </div>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div><span class="detail-label">FROM</span><div class="detail-val" id="modalSender">Sender Name</div></div>
+          <div><span class="detail-label">EMAIL ADDRESS</span><div class="detail-val"><a href="#" id="modalEmailLink">email@domain.com</a></div></div>
+          <div><span class="detail-label">DATE &amp; TIME</span><div class="detail-val" id="modalDate">Jan 1, 2025</div></div>
+        </div>
+        <div class="message-content-wrap">
+          <span class="detail-label">MESSAGE CONTENT</span>
+          <div class="message-bubble" id="modalContent"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-danger" id="modalDeleteBtn">Delete Message</button>
+        <div class="modal-footer-right">
+          <button class="btn-secondary" id="modalToggleReadBtn">Mark as Read</button>
+          <a href="#" id="modalReplyBtn" class="btn-primary">Reply via Email ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROJECT ADD/EDIT -->
+  <div id="projectModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="projectModalTitle">Add New Project</h2>
+        <button class="modal-close" id="projectModalCloseBtn">&times;</button>
+      </div>
+      <form id="projectForm" class="modal-form">
+        <div class="modal-body">
+          <p id="projectFormStatus" class="form-status is-empty" role="status"></p>
+          <input type="hidden" id="projId">
+          <div class="form-group">
+            <label for="projTitle">PROJECT TITLE *</label>
+            <input type="text" id="projTitle" required placeholder="e.g. RGN Residency Billing Generator">
+          </div>
+          <div class="form-group">
+            <label for="projDesc">DESCRIPTION *</label>
+            <textarea id="projDesc" rows="3" required placeholder="Project overview, architecture, and features..."></textarea>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="projCategory">CATEGORY *</label>
+              <select id="projCategory">
+                <option value="frontend">Frontend</option>
+                <option value="fullstack">Full Stack</option>
+                <option value="fullstack frontend">Full Stack + Frontend</option>
+                <option value="fullstack ai">Full Stack + AI</option>
+                <option value="ai">AI Tools</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="projBadge">BADGE LABEL</label>
+              <input type="text" id="projBadge" placeholder="e.g. Live Production, Private AI">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="projTech">TECHNOLOGIES (COMMA SEPARATED)</label>
+            <input type="text" id="projTech" placeholder="HTML5, CSS3, React, Node.js">
+          </div>
+          <div class="form-group">
+            <label for="projImage">PROJECT PREVIEW IMAGE</label>
+            <div class="input-with-upload">
+              <input type="text" id="projImage" placeholder="Image URL or upload a file">
+              <input type="file" id="projFileInput" accept="image/*" hidden>
+              <button type="button" id="uploadProjImgBtn" class="btn-secondary">Upload image</button>
+            </div>
+            <div class="upload-preview" id="projImagePreview" hidden>
+              <img id="projImagePreviewImg" alt="Project preview">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="projLive">LIVE DEMO URL</label>
+              <input type="text" id="projLive" placeholder="https://... or #contact">
+            </div>
+            <div class="form-group">
+              <label for="projGithub">GITHUB URL</label>
+              <input type="text" id="projGithub" placeholder="https://github.com/... or #contact">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="projOrder">DISPLAY ORDER</label>
+              <input type="number" id="projOrder" value="0">
+            </div>
+            <div class="form-group check-row">
+              <input type="checkbox" id="projFeatured">
+              <label for="projFeatured">Featured on Homepage</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelProjectBtn">Cancel</button>
+          <button type="submit" id="saveProjectBtn" class="btn-primary btn-inline">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SKILL ADD/EDIT -->
+  <div id="skillModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 id="skillModalTitle">Add New Skill</h2>
+        <button class="modal-close" id="skillModalCloseBtn">&times;</button>
+      </div>
+      <form id="skillForm" class="modal-form">
+        <div class="modal-body">
+          <input type="hidden" id="skillId">
+          <div class="form-group">
+            <label for="skillName">SKILL / TECH NAME *</label>
+            <input type="text" id="skillName" required placeholder="e.g. Next.js, Docker, WebSockets">
+          </div>
+          <div class="form-group">
+            <label for="skillCategory">CATEGORY *</label>
+            <select id="skillCategory" required>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Tools">Tools</option>
+              <option value="AI & Vibe Tools">AI &amp; Vibe Tools</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="skillStyle">STYLE CLASS</label>
+              <select id="skillStyle">
+                <option value="">Default</option>
+                <option value="hl">Primary Accent (hl)</option>
+                <option value="cy">Cyan Glow (cy)</option>
+                <option value="lm">Lime Neon (lm)</option>
+                <option value="mu">Muted (mu)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="skillOrder">DISPLAY ORDER</label>
+              <input type="number" id="skillOrder" value="0">
+            </div>
+          </div>
+          <div class="form-group check-row">
+            <input type="checkbox" id="skillHighlight">
+            <label for="skillHighlight">Highlight / Featured Chip</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelSkillBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-inline">Save Skill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TIMELINE ENTRY ADD/EDIT -->
+  <div id="timelineModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-box" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 id="timelineModalTitle">Add Timeline Entry</h2>
+        <button class="modal-close" id="timelineModalCloseBtn">&times;</button>
+      </div>
+      <form id="timelineForm" class="modal-form">
+        <div class="modal-body">
+          <input type="hidden" id="timelineId">
+          <input type="hidden" id="timelineType" value="experience">
+          <div class="form-group">
+            <label id="tlOrgLabel" for="tlOrg">ORGANIZATION / COMPANY *</label>
+            <input type="text" id="tlOrg" required>
+          </div>
+          <div class="form-group">
+            <label id="tlTitleLabel" for="tlTitle">ROLE / DEGREE *</label>
+            <input type="text" id="tlTitle" required>
+          </div>
+          <div class="form-group" id="tlTagWrap">
+            <label for="tlTag">TAG</label>
+            <input type="text" id="tlTag" placeholder="e.g. Internship, Full-time">
+          </div>
+          <div class="form-group">
+            <label for="tlPeriod">PERIOD / DURATION</label>
+            <input type="text" id="tlPeriod" placeholder="e.g. 2024 - Present">
+          </div>
+          <div class="form-group">
+            <label for="tlDesc">DESCRIPTION</label>
+            <textarea id="tlDesc" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="tlOrder">ORDER</label>
+            <input type="number" id="tlOrder" value="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelTimelineBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-inline">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

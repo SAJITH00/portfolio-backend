@@ -1,0 +1,48 @@
+{
+  "name": "sajith-portfolio-backend",
+  "version": "1.0.0",
+  "description": "Secure Node.js & Express REST API backend for SAJITH // DEV Portfolio",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed:admin": "node scripts/createAdmin.js",
+    "seed:portfolio": "node scripts/seedPortfolio.js --apply",
+    "migrate:portfolio": "node scripts/seedPortfolio.js",
+    "test:migration": "node scripts/testPortfolioImport.js",
+    "test:cors": "node scripts/testCorsOptions.js",
+    "test:portfolio-cms": "node scripts/testPortfolioCms.js",
+    "test:portfolio-sync": "node scripts/testPortfolioSync.js",
+    "test:api": "node scripts/testApi.js"
+  },
+  "keywords": [
+    "portfolio",
+    "backend",
+    "express",
+    "mongodb",
+    "mongoose",
+    "jwt",
+    "security"
+  ],
+  "author": "SAJITH",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.24.8",
+    "multer": "^2.5.0",
+    "nodemailer": "^6.10.1",
+    "resend": "^6.9.4"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.2"
+  }
+}
